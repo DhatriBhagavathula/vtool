@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Whiteboard Coding Challenge (Audio)</title>
+<style>
+   body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background:
+    radial-gradient(circle at 25% 30%, rgba(0, 191, 255, 0.3), transparent 25%),
+    radial-gradient(circle at 80% 70%, rgba(255, 0, 150, 0.3), transparent 30%),
+    linear-gradient(135deg, #ffffff, #94dcee, #d77ac0);
+  background-blend-mode: screen;
+  background-size: 300% 300%;
+  animation: vibrantShift 12s ease-in-out infinite;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+@keyframes vibrantShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.whiteboard-container {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  width: 90%;
+  max-width: 800px;
+  transition: transform 0.3s ease;
+}
+
+.whiteboard-container:hover {
+  transform: translateY(-5px);
+}
+
+
+.container {
+  max-width: 800px;
+  margin-top: 2rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+h1 {
+  color: #003366;
+  text-align: center;
+}
+
+#code-question {
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+textarea#code-area {
+  width: 100%;
+  min-height: 220px;
+  max-height: 400px;
+  box-sizing: border-box;
+  padding: 1rem;
+  border: 2px solid #003366;
+  border-radius: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+  background-color: #f9f9ff;
+  color: #333;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+textarea#code-area:focus {
+  border-color: #007bff;
+  background-color: #ffffff;
+}
+
+
+button {
+  margin: 0.5rem 0.3rem;
+  padding: 0.6rem 1.2rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+audio {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+</style>
+<body>
+  <div class="container">
+    <h1>💻 Whiteboard Coding Challenge</h1>
+    <div id="code-question">Click below to get a challenge.</div>
+    
+    <button onclick="generateQuestion()">Generate Challenge</button>
+
+    <h3>✍️ Write Your Code:</h3>
+    <textarea id="code-area" spellcheck="false" placeholder="Type your code here..."></textarea>
+
+    <h3>🎤 Explain Logic (Audio):</h3>
+    <div class="audio-controls">
+      <button onclick="startRecording()">🎙️ Start Recording</button>
+      <button onclick="stopRecording()" disabled id="stopBtn">⏹️ Stop</button>
+      <button onclick="deleteRecording()" disabled id="deleteBtn">🗑️ Delete</button>
+    </div>
+
+    <audio id="playback" controls style="display: none;"></audio>
+    <a id="downloadLink" style="display: none;" download="explanation-audio.webm">📥 Download Audio</a>
+  </div>
+
+  <script>
+    const questions = [
+  "Write a function to check if a string is a palindrome.",
+  "Implement a binary search algorithm.",
+  "Find the first non-repeating character in a string.",
+  "Implement a stack using two queues.",
+  "Detect a cycle in a linked list.",
+  "Write a function to reverse a linked list.",
+  "Implement quick sort.",
+  "Find the longest substring without repeating characters."
+];
+
+const questionEl = document.getElementById("code-question");
+const stopBtn = document.getElementById("stopBtn");
+const deleteBtn = document.getElementById("deleteBtn");
+const playback = document.getElementById("playback");
+const downloadLink = document.getElementById("downloadLink");
+
+let stream;
+let recorder;
+let audioChunks = [];
+
+function generateQuestion() {
+  const randomIndex = Math.floor(Math.random() * questions.length);
+  questionEl.textContent = questions[randomIndex];
+}
+
+async function startRecording() {
+  stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  recorder = new MediaRecorder(stream);
+  audioChunks = [];
+
+  recorder.ondataavailable = (e) => audioChunks.push(e.data);
+
+  recorder.onstop = () => {
+    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    playback.src = audioUrl;
+    playback.style.display = 'block';
+    downloadLink.href = audioUrl;
+    downloadLink.style.display = 'inline-block';
+    deleteBtn.disabled = false;
+  };
+
+  recorder.start();
+  stopBtn.disabled = false;
+}
+
+function stopRecording() {
+  recorder.stop();
+  stopBtn.disabled = true;
+}
+
+function deleteRecording() {
+  playback.pause();
+  playback.removeAttribute('src');
+  playback.load();
+  playback.style.display = 'none';
+  downloadLink.href = '';
+  downloadLink.style.display = 'none';
+  deleteBtn.disabled = true;
+}
+
+  </script>
+</body>
+</html>

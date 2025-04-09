@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtual Professional Dictionary</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(-45deg, #89c0e4, #3893ed, #5ba1e6, #f0f1f2);
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .search-bar {
+      max-width: 400px;
+      margin: 10px auto;
+      display: flex;
+      gap: 10px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .categories {
+      text-align: center;
+      margin: 15px 0;
+    }
+    .categories button {
+      margin: 5px;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+    }
+    .categories button.active {
+      background: #0056b3;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      padding: 10px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card h3 {
+      margin: 0;
+    }
+    .card p {
+      margin: 5px 0;
+    }
+    .category-label {
+      font-size: 14px;
+      font-style: italic;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📘 Virtual Professional Dictionary</h1>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search professional word..." />
+  </div>
+
+  <div class="categories" id="categoryButtons"></div>
+
+  <div class="card-grid" id="dictionaryGrid"></div>
+
+  <script>
+    const dictionary = [
+  // Leadership
+  { word: "Spearhead", meaning: "To lead or initiate a project or initiative.", category: "Leadership", example: "She spearheaded the product launch strategy." },
+  { word: "Strategic", meaning: "Planned to achieve specific goals.", category: "Leadership", example: "He took a strategic approach to scale the company." },
+  { word: "Facilitate", meaning: "To make an action or process easier.", category: "Leadership", example: "She facilitated cross-functional team meetings." },
+  { word: "Mentor", meaning: "An experienced advisor or guide.", category: "Leadership", example: "He mentored junior developers." },
+  { word: "Delegate", meaning: "To assign responsibility to others.", category: "Leadership", example: "She delegated tasks to improve efficiency." },
+  { word: "Empower", meaning: "Give authority or confidence to someone.", category: "Leadership", example: "He empowered the team to make decisions." },
+  { word: "Influence", meaning: "The power to affect decisions and actions.", category: "Leadership", example: "She influenced company policy with her insights." },
+  { word: "Innovate", meaning: "Introduce new methods or ideas.", category: "Leadership", example: "He led efforts to innovate in the AI space." },
+  { word: "Visionary", meaning: "Having clear ideas about the future.", category: "Leadership", example: "Her visionary leadership shaped the product roadmap." },
+  { word: "Align", meaning: "Bring into agreement or cooperation.", category: "Leadership", example: "We aligned team goals with business objectives." },
+
+  // Technical
+  { word: "Optimize", meaning: "Make the best or most effective use of.", category: "Technical", example: "He optimized database queries for speed." },
+  { word: "Implement", meaning: "To put into effect.", category: "Technical", example: "She implemented a new API gateway." },
+  { word: "Deploy", meaning: "Launch or roll out a system.", category: "Technical", example: "The app was deployed to production last week." },
+  { word: "Debug", meaning: "Identify and fix errors in code.", category: "Technical", example: "He debugged the authentication issue." },
+  { word: "Scale", meaning: "Increase capacity or performance.", category: "Technical", example: "They scaled their cloud services efficiently." },
+  { word: "Refactor", meaning: "Rewrite code without changing its behavior.", category: "Technical", example: "She refactored the backend for readability." },
+  { word: "Automate", meaning: "Make a process operate automatically.", category: "Technical", example: "They automated build and testing pipelines." },
+  { word: "Configure", meaning: "Set up software/hardware for use.", category: "Technical", example: "He configured the CI/CD tools." },
+  { word: "Integrate", meaning: "Combine systems or processes.", category: "Technical", example: "We integrated the payment system into the app." },
+  { word: "Troubleshoot", meaning: "Identify and solve problems.", category: "Technical", example: "She troubleshooted the server downtime issue." },
+
+  // Soft Skills
+  { word: "Resilient", meaning: "Able to recover from setbacks.", category: "Soft Skills", example: "He remained resilient during multiple changes." },
+  { word: "Adaptable", meaning: "Able to adjust to new conditions.", category: "Soft Skills", example: "She is adaptable to changing requirements." },
+  { word: "Collaborative", meaning: "Work well with others.", category: "Soft Skills", example: "A collaborative approach ensured project success." },
+  { word: "Proactive", meaning: "Taking initiative before problems occur.", category: "Soft Skills", example: "He’s proactive in solving client issues." },
+  { word: "Organized", meaning: "Efficient and structured.", category: "Soft Skills", example: "Her organized workflow improved delivery time." },
+  { word: "Critical Thinker", meaning: "Analyze facts to form judgments.", category: "Soft Skills", example: "He’s a strong critical thinker in crisis." },
+  { word: "Empathetic", meaning: "Understanding others’ feelings.", category: "Soft Skills", example: "She leads with an empathetic mindset." },
+  { word: "Detail-Oriented", meaning: "Paying attention to small details.", category: "Soft Skills", example: "His detail-oriented reviews catch all bugs." },
+  { word: "Multitasker", meaning: "Capable of handling multiple tasks.", category: "Soft Skills", example: "She’s a multitasker during tight sprints." },
+  { word: "Reliable", meaning: "Consistently good in performance.", category: "Soft Skills", example: "A reliable teammate during critical deadlines." },
+
+  // Resume Power Words
+  { word: "Achieved", meaning: "Successfully reached a goal.", category: "Resume Power Words", example: "Achieved 20% increase in sales in Q2." },
+  { word: "Improved", meaning: "Made something better.", category: "Resume Power Words", example: "Improved application load time by 35%." },
+  { word: "Created", meaning: "Built or developed.", category: "Resume Power Words", example: "Created a CRM system for internal sales team." },
+  { word: "Reduced", meaning: "Lowered something negative.", category: "Resume Power Words", example: "Reduced ticket resolution time by 50%." },
+  { word: "Led", meaning: "Managed or guided others.", category: "Resume Power Words", example: "Led a cross-functional product team of 6." },
+  { word: "Streamlined", meaning: "Made more efficient.", category: "Resume Power Words", example: "Streamlined onboarding process saving 20 hours/week." },
+  { word: "Negotiated", meaning: "Reached agreement through discussion.", category: "Resume Power Words", example: "Negotiated vendor contracts saving $30k annually." },
+  { word: "Trained", meaning: "Taught or mentored others.", category: "Resume Power Words", example: "Trained 5 interns on data analysis tools." },
+  { word: "Designed", meaning: "Planned and created something.", category: "Resume Power Words", example: "Designed the company’s first mobile app." },
+  { word: "Launched", meaning: "Started a new initiative or product.", category: "Resume Power Words", example: "Launched a feature used by 100k users." },
+
+  // Communication
+  { word: "Articulate", meaning: "Express clearly and effectively.", category: "Communication", example: "She’s able to articulate ideas in meetings." },
+  { word: "Persuasive", meaning: "Able to convince others.", category: "Communication", example: "He gave a persuasive pitch to investors." },
+  { word: "Active Listener", meaning: "Fully attentive and engaged.", category: "Communication", example: "She’s known as an active listener." },
+  { word: "Concise", meaning: "Brief and to the point.", category: "Communication", example: "He gave a concise project summary." },
+  { word: "Diplomatic", meaning: "Tactful and respectful in communication.", category: "Communication", example: "Handled the customer complaint diplomatically." },
+  { word: "Presenter", meaning: "Someone who delivers information publicly.", category: "Communication", example: "He’s a confident presenter." },
+  { word: "Mediator", meaning: "Resolves disputes or conflicts.", category: "Communication", example: "She acted as mediator in team conflicts." },
+  { word: "Clarify", meaning: "Make something clearer.", category: "Communication", example: "He clarified the timeline expectations." },
+  { word: "Narrative", meaning: "Telling a story or describing events.", category: "Communication", example: "Used narrative techniques in user research." },
+  { word: "Feedback", meaning: "Information on performance for improvement.", category: "Communication", example: "Provided constructive feedback in reviews." },
+
+  // Business & Strategy
+  { word: "Synergy", meaning: "Combined effect greater than individual parts.", category: "Business", example: "The merger created operational synergy." },
+  { word: "ROI", meaning: "Return on Investment.", category: "Business", example: "Focused on campaigns with high ROI." },
+  { word: "Benchmark", meaning: "Standard point of reference.", category: "Business", example: "Benchmarked performance against industry standards." },
+  { word: "Forecast", meaning: "Predict future trends.", category: "Business", example: "Forecasted revenue using historical data." },
+  { word: "Revenue", meaning: "Income generated.", category: "Business", example: "Increased quarterly revenue by 15%." },
+  { word: "Market Share", meaning: "Company’s percentage of sales in market.", category: "Business", example: "Gained market share in Q4." },
+  { word: "KPIs", meaning: "Key Performance Indicators.", category: "Business", example: "Tracked KPIs for product growth." },
+  { word: "Agile", meaning: "Iterative development method.", category: "Business", example: "Adopted agile for faster development cycles." },
+  { word: "Leverage", meaning: "Use to maximum advantage.", category: "Business", example: "Leverage data insights for better UX." },
+  { word: "Scalable", meaning: "Capable of growth under demand.", category: "Business", example: "Built a scalable architecture for global users." }
+];
+
+
+    let selectedCategory = null;
+
+    const dictionaryGrid = document.getElementById("dictionaryGrid");
+    const searchInput = document.getElementById("searchInput");
+    const categoryButtons = document.getElementById("categoryButtons");
+
+    const renderDictionary = () => {
+      const search = searchInput.value.toLowerCase();
+      dictionaryGrid.innerHTML = "";
+
+      const filtered = dictionary.filter(item => {
+        const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
+        const matchesSearch = item.word.toLowerCase().includes(search);
+        return matchesCategory && matchesSearch;
+      });
+
+      filtered.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <h3>${item.word}</h3>
+          <p class="category-label">${item.category}</p>
+          <p>${item.meaning}</p>
+          <p><strong>Example:</strong> ${item.example}</p>
+        `;
+        dictionaryGrid.appendChild(card);
+      });
+    };
+
+    const renderCategories = () => {
+      const categories = ["All", ...new Set(dictionary.map(item => item.category))];
+      categoryButtons.innerHTML = "";
+
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.textContent = cat;
+        btn.classList.toggle("active", selectedCategory === cat || (!selectedCategory && cat === "All"));
+        btn.onclick = () => {
+          selectedCategory = cat === "All" ? null : cat;
+          renderCategories();
+          renderDictionary();
+        };
+        categoryButtons.appendChild(btn);
+      });
+    };
+
+    searchInput.addEventListener("input", renderDictionary);
+
+    // Initial render
+    renderCategories();
+    renderDictionary();
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-left">
+      <img src="images/logo.jpg" alt="Logo" class="logo" />
+    
+      
+      <span class="brand-name">VINTER</span>
+    </div>
+    <div class="nav-right">
+      <a href="#" id="toggleSidebar" class="fancy-btn"><i class="fas fa-bars"></i> Menu</a>
+      <a href="settings.html" class="fancy-btn"><i class="fas fa-cog"></i> Settings</a>
+      <a href="profile.html" class="fancy-btn"><i class="fas fa-user"></i> Profile</a>
+      <a href="register.html" class="fancy-btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+    </div>
+    
+  </nav>
+
+  <!-- Sidebar -->
+  <!-- Sidebar -->
+<!-- Sidebar -->
+ <div class="background-wrapper">
+ <div class="app-layout">
+<div id="sidebar" class="sidebar fancy-sidebar">
+  <h3 class="sidebar-title toggle-menu" style="cursor: pointer;">🚀 Quick Access</h3>
+  <ul class="sidebar-list">
+    <li><a href="index.html"><i class="fas fa-play-circle"></i> Start Interview</a></li>
+    <li><a href="#"><i class="fas fa-file-alt"></i> Resume Analyzer</a></li>
+    <li><a href="dictionary.html"><i class="fas fa-book-open"></i> Keyword Book</a></li>
+    <li><a href="challenges.html"><i class="fas fa-bullseye"></i> Challenges</a></li>
+    <li><a href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+    <li><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+  </ul>
+</div>
+
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">🎉 You are now logged in!</div>
+<div class = "main-content">
+  <!-- Main Content -->
+  <div class="background-section">
+    <h1 class="tagline">"Where Confidence Begins with Preparation"</h1>
+    <p class="subtext">~Train with realistic interview scenarios and boost your confidence through feedback.</p>
+  </div>
+
+  
+</div>
+  <!-- Script -->
+  <script>
+    const toggleBtn = document.getElementById("toggleSidebar");
+    const sidebar = document.getElementById("sidebar");
+  
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("hidden");
+    });
+  
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+  
+  
+  
+</body>
+</html>

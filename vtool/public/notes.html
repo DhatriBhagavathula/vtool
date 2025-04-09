@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Creative Notes</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(-45deg, #519fed, #4b96e1, #a8c4e0, #5fa1de);
+    }
+    h1 {
+      text-align: center;
+    }
+    #toolbar {
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      padding: 10px;
+      resize: vertical;
+      font-size: 16px;
+    }
+    canvas {
+      border: 2px dashed #aaa;
+      display: block;
+      margin: 10px auto;
+      background: #fcfcfd;
+    }
+    button {
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 5px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    select, input[type="color"] {
+      padding: 5px;
+    }
+    #savedPreview {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border: 1px solid #ccc;
+    }
+    #savedPreview h3 {
+      text-align: center;
+    }
+    #savedText {
+      white-space: pre-wrap;
+      padding: 10px;
+      border: 1px dashed #ddd;
+      margin-bottom: 10px;
+    }
+    #savedCanvas {
+      max-width: 100%;
+      border: 1px solid #ccc;
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>📝 Creative Notes</h1>
+
+  <div id="toolbar">
+    <select id="fontSelect">
+      <option value="Arial">Arial</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Courier New">Courier New</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Times New Roman">Times New Roman</option>
+      <option value="Comic Sans MS">Comic Sans</option>
+      <option value="Monospace">Monospace</option>
+      <option value="Roboto">Roboto</option>
+    </select>
+
+    <select id="fontSize">
+      <option value="12px">12px</option>
+      <option value="14px">14px</option>
+      <option value="16px" selected>16px</option>
+      <option value="18px">18px</option>
+      <option value="20px">20px</option>
+      <option value="24px">24px</option>
+      <option value="30px">30px</option>
+      <option value="36px">36px</option>
+    </select>
+
+    <button onclick="toggleStyle('bold')"><b>B</b></button>
+    <button onclick="toggleStyle('italic')"><i>I</i></button>
+    <button onclick="toggleStyle('underline')"><u>U</u></button>
+    <input type="color" id="fontColor" />
+
+    <button onclick="saveNote()">💾 Save</button>
+    <button onclick="loadNote()">📂 Load</button>
+    <button onclick="deleteNote()">🗑️ Delete</button>
+  </div>
+
+  <textarea id="noteArea" placeholder="Start writing your notes here..."></textarea>
+
+  <h3>🎨 Draw Something</h3>
+  <canvas id="drawCanvas" width="600" height="300"></canvas>
+  <div style="text-align:center;">
+    <input type="color" id="drawColor" />
+    <button onclick="clearCanvas()">Clear Canvas</button>
+  </div>
+
+  <div id="savedPreview">
+    <h3>📌 Saved Note Preview</h3>
+    <div id="savedText">No saved note yet.</div>
+    <img id="savedCanvas" src="" alt="Saved drawing preview" />
+  </div>
+
+  <script>
+    const noteArea = document.getElementById('noteArea');
+    const fontSelect = document.getElementById('fontSelect');
+    const fontSize = document.getElementById('fontSize');
+    const fontColor = document.getElementById('fontColor');
+
+    fontSelect.onchange = () => noteArea.style.fontFamily = fontSelect.value;
+    fontSize.onchange = () => noteArea.style.fontSize = fontSize.value;
+    fontColor.oninput = () => noteArea.style.color = fontColor.value;
+
+    function toggleStyle(style) {
+      document.execCommand(style, false, null);
+      noteArea.focus();
+    }
+
+    function saveNote() {
+      localStorage.setItem("noteText", noteArea.value);
+      const canvasData = drawCanvas.toDataURL();
+      localStorage.setItem("canvasImage", canvasData);
+      updatePreview();
+      alert("Note saved!");
+    }
+
+    function loadNote() {
+      noteArea.value = localStorage.getItem("noteText") || "";
+      const canvasImage = localStorage.getItem("canvasImage");
+      if (canvasImage) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = canvasImage;
+      }
+      updatePreview();
+    }
+
+    function deleteNote() {
+      if (confirm("Are you sure you want to delete everything?")) {
+        localStorage.removeItem("noteText");
+        localStorage.removeItem("canvasImage");
+        noteArea.value = "";
+        clearCanvas();
+        updatePreview();
+      }
+    }
+
+    function updatePreview() {
+      document.getElementById("savedText").innerText = localStorage.getItem("noteText") || "No saved note yet.";
+      const canvasImg = localStorage.getItem("canvasImage");
+      document.getElementById("savedCanvas").src = canvasImg || "";
+    }
+
+    // Drawing logic
+    const drawCanvas = document.getElementById('drawCanvas');
+    const ctx = drawCanvas.getContext('2d');
+    let isDrawing = false;
+
+    drawCanvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    drawCanvas.addEventListener('mousemove', (e) => {
+      if (isDrawing) {
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = document.getElementById('drawColor').value;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    });
+
+    drawCanvas.addEventListener('mouseup', () => isDrawing = false);
+    drawCanvas.addEventListener('mouseout', () => isDrawing = false);
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+    }
+
+    // Load preview on page load
+    window.onload = loadNote;
+  </script>
+</body>
+</html>

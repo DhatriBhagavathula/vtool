@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Role-Play Interview Scenario</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #0055a5;
+      margin-bottom: 10px;
+    }
+
+    .roleplay-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    }
+
+    video {
+      width: 100%;
+      max-height: 400px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      background: #000;
+    }
+
+    .record-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    #startRecording {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    #stopRecording {
+      background-color: #e53935;
+      color: white;
+    }
+
+    #submitForFeedback {
+      background-color: #0055a5;
+      color: white;
+      margin-top: 10px;
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+      .record-controls {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="roleplay-container">
+    <h2>🎭 Role-Play Scenario: Interview with a Product Manager</h2>
+
+    <!-- Interviewer Video -->
+    <video id="interviewerVideo" controls autoplay muted>
+      <source src="videos/product_manager_scenario.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <!-- Recording Controls -->
+    <div class="record-controls">
+      <button id="startRecording">🎥 Start Your Response</button>
+      <button id="stopRecording" disabled>🛑 Stop Recording</button>
+    </div>
+
+    <!-- User Preview -->
+    <video id="userPreview" autoplay muted></video>
+
+    <!-- Submit for Feedback -->
+    <button id="submitForFeedback" disabled>🧠 Submit for Feedback</button>
+  </div>
+
+  <script>
+    let mediaRecorder;
+    let recordedChunks = [];
+
+    const startBtn = document.getElementById('startRecording');
+    const stopBtn = document.getElementById('stopRecording');
+    const submitBtn = document.getElementById('submitForFeedback');
+    const preview = document.getElementById('userPreview');
+
+    startBtn.onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      preview.srcObject = stream;
+      recordedChunks = [];
+
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        submitBtn.disabled = false;
+      };
+
+      mediaRecorder.start();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+    };
+
+    stopBtn.onclick = () => {
+      mediaRecorder.stop();
+      preview.srcObject.getTracks().forEach(track => track.stop());
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+    };
+
+    submitBtn.onclick = async () => {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      const formData = new FormData();
+      formData.append("file", blob, "response.webm");
+
+      const response = await fetch("http://localhost:8000/analyze_response/", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      const { transcript, keywords_found, star_structure } = result;
+
+      let feedback = `📋 Transcript:\n${transcript}\n\n🧠 STAR Breakdown:\n`;
+      for (const [part, found] of Object.entries(star_structure)) {
+        feedback += `• ${part.toUpperCase()}: ${found ? "✅" : "❌"}\n`;
+      }
+      feedback += `\n📌 Keywords Found: ${keywords_found.join(', ') || "None"}`;
+
+      alert(feedback);
+    };
+  </script>
+</body>
+</html>

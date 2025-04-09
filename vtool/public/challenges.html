@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Challenge Zone</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', sans-serif;
+      background: radial-gradient(circle, #f9fafb, #f6f8f9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      margin-top: 2rem;
+      font-size: 2.8rem;
+      color: #010a09;
+      text-shadow: 0 0 20px #bc8c76;
+    }
+
+    .arena {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      margin: 3rem auto;
+      width: 90%;
+      max-width: 1100px;
+      padding: 1rem;
+    }
+
+    .card {
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      transform-style: preserve-3d;
+      transition: transform 0.8s;
+      cursor: pointer;
+    }
+
+    .card:hover .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+    }
+
+    .card-front {
+      background: linear-gradient(145deg, #36459d, #4772de);
+      color: #f5fafa;
+    }
+
+    .card-front span {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-back {
+      background: #f2f3f6;
+      color: #000;
+      transform: rotateY(180deg);
+      text-align: center;
+    }
+
+    .card-back a {
+      margin-top: 1rem;
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: #000;
+      color: #f3f7f7;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: background 0.3s ease;
+    }
+
+    .card-back a:hover {
+      background: #333;
+    }
+
+    @media screen and (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
+  </style>
+</head>
+<body>
+
+  <h1> 🎯 Challenge Zone</h1>
+
+  <div class="arena">
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <span>🔥</span>
+          Rapid Fire
+        </div>
+        <div class="card-back">
+          Quick 30-sec questions from all domains. <br/>
+          <a href="rapidfire.html">Start</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <span>🧠</span>
+          Case Study
+        </div>
+        <div class="card-back">
+          Analyze real-world tech scenarios. <br/>
+          <a href="case.html">Start</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <span>💻</span>
+          Whiteboard
+        </div>
+        <div class="card-back">
+          Solve code visually & explain logic. <br/>
+          <a href="whiteboard.html">Start</a>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <span> 🎭 </span>
+          Roleplay
+        </div>
+        <div class="card-back">
+          Solve code visually & explain logic. <br/>
+          <a href="roleplay.html">Start</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <span>🧩</span>
+          Puzzle Mode
+        </div>
+        <div class="card-back">
+          Brain teasers to test IQ & logic. <br/>
+          <a href="puzzle.html">Start</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

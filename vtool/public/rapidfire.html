@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rapid Fire Round 🚀</title>
+  <style>
+   body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #02224e, #02224e);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.container {
+  position: relative;
+  z-index: 2; /* So it stays above the canvas */
+  text-align: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+
+h1 {
+  color: #003366;
+  margin-bottom: 1.5rem;
+}
+
+.question-box {
+  margin-bottom: 2rem;
+}
+
+#question {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #222;
+  margin: 1rem 0;
+  min-height: 60px;
+}
+
+input[type="text"] {
+  padding: 0.6rem;
+  font-size: 1rem;
+  width: 80%;
+  max-width: 400px;
+  border: 2px solid #003366;
+  border-radius: 8px;
+  outline: none;
+}
+
+.timer {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ff3333;
+}
+
+.controls button {
+  margin: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.controls button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.controls button:hover:not(:disabled) {
+  background: #0056b3;
+}
+canvas#bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+  </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+
+
+  <div class="container">
+    <h1>🔥 Rapid Fire Round</h1>
+    <div class="question-box">
+      <div class="timer" id="timer">⏳ 30</div>
+      <div id="question">⚡ Press Start to begin!</div>
+      <input type="text" id="answer" placeholder="Type your answer..." />
+    </div>
+
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="nextBtn" disabled>Next</button>
+    </div>
+  </div>
+
+  <audio id="buzzer" src="https://www.soundjay.com/button/sounds/beep-07.mp3" preload="auto"></audio>
+  <script>
+    const questions = [
+  "💡 What is a pointer in C?",
+  "🎯 Define polymorphism.",
+  "🧠 What is JOIN in SQL?",
+  "🌐 HTTP vs HTTPS?",
+  "📦 What is a class in OOP?",
+  "🔐 Define primary key.",
+  "☁️ Name a cloud provider.",
+  "🔁 What is recursion?",
+  "📊 Define normalization.",
+  "🌍 What is DNS?",
+  "🧰 Why use Git?",
+  "🏁 Explain inheritance.",
+  "⚙️ What is Big-O?",
+  "🧱 What is deadlock?",
+  "📡 What is TCP/IP?"
+];
+
+let index = 0;
+let timer;
+let timeLeft = 30;
+
+const questionEl = document.getElementById("question");
+const timerEl = document.getElementById("timer");
+const answerInput = document.getElementById("answer");
+const buzzer = document.getElementById("buzzer");
+
+document.getElementById("startBtn").addEventListener("click", start);
+document.getElementById("nextBtn").addEventListener("click", next);
+
+function start() {
+  index = 0;
+  timeLeft = 30;
+  document.getElementById("startBtn").disabled = true;
+  document.getElementById("nextBtn").disabled = false;
+  showQuestion();
+  startTimer();
+}
+
+function showQuestion() {
+  questionEl.textContent = questions[index];
+  answerInput.value = "";
+  answerInput.focus();
+}
+
+function next() {
+  clearInterval(timer);
+  buzzer.pause();
+  buzzer.currentTime = 0;
+
+  if (index < questions.length - 1) {
+    index++;
+    timeLeft = 30;
+    showQuestion();
+    startTimer();
+  } else {
+    questionEl.textContent = "🎉 Rapid Fire Complete!";
+    timerEl.textContent = "✅";
+    document.getElementById("nextBtn").disabled = true;
+  }
+}
+
+function startTimer() {
+  timerEl.textContent = `⏳ ${timeLeft}`;
+  timer = setInterval(() => {
+    timeLeft--;
+    timerEl.textContent = `⏳ ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      buzzer.play();
+      document.getElementById("nextBtn").click();
+    }
+  }, 1000);
+}
+
+// 🎇 Animated background
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+let particlesArray = [];
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedX = Math.random() * 0.4 - 0.2;
+    this.speedY = Math.random() * 0.4 - 0.2;
+  }
+  update() {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+  }
+  draw() {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function initParticles() {
+  particlesArray = [];
+  for (let i = 0; i < 150; i++) {
+    particlesArray.push(new Particle());
+  }
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particlesArray.forEach(p => {
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animateParticles);
+}
+
+initParticles();
+animateParticles();
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initParticles();
+});
+
+
+  </script>
+</body>
+</html>
