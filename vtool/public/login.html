@@ -1,45 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="login-container">
-        <form class="login-box" id="login-form">
-            <h2>Login</h2>
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" placeholder="Email/Phone number" required>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" placeholder="Password" required>
-            </div>
-            <div class="options">
-                <label><input type="checkbox"> Remember Me</label>
-                <a href="#">Forgot Password?</a>
-            </div>
-            <button type="submit" class="btn">Login</button>
-        </form>
+      <form class="login-box" id="login-form">
+        <h2>Login</h2>
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input
+            type="text"
+            name="email"
+            placeholder="Email/Phone number"
+            required
+          />
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            required
+          />
+        </div>
+
+        <div class="options">
+          <label><input type="checkbox" /> Remember Me</label>
+          <a href="#">Forgot Password?</a>
+        </div>
+        <button type="submit" class="btn">Login</button>
+      </form>
     </div>
     <script>
-        document.getElementById("login-form").addEventListener("submit", async function (e) {
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
-        
+
           const email = e.target.email.value;
           const password = e.target.password.value;
-        
+
           try {
-            const res = await fetch("http://localhost:8000/login", {
+            const res = await fetch("http://localhost:5000/api/auth/login", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ email, password }),
             });
-        
+
             if (res.ok) {
               alert("Login successful!");
               window.location.href = "dashboard.html"; // or your dashboard
@@ -51,7 +67,6 @@
             alert("Server error. Try again.");
           }
         });
-        </script>
-        
-</body>
+    </script>
+  </body>
 </html>
