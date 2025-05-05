@@ -1,75 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Technical Case Study</title>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Technical Case Study 🧠</title>
   <style>
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(to right, #9abbec, #e7a9dd);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.container {
-  text-align: center;
-  background: #eee7e7;
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 600px;
-}
-
-h1 {
-  color: #003366;
-  margin-bottom: 1rem;
-}
-
-#case-question {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin: 1rem 0;
-  color: #222;
-}
-
-.timer {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #ff3333;
-  margin-bottom: 1rem;
-}
-
-.controls button {
-  margin: 0.5rem 0.4rem;
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.controls button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.controls button:hover:not(:disabled) {
-  background: #0056b3;
-}
-
-video {
-  width: 100%;
-  border-radius: 10px;
-  margin-top: 1rem;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0b1f3f, #1e3c72);
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 700px;
+      padding: 2rem;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    #case-question {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 1rem 0;
+      min-height: 3em;
+      transition: opacity .3s ease;
+    }
+    .timer {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      color: #ff8c00;
+    }
+    .controls {
+      margin-bottom: 1.5rem;
+    }
+    .controls button {
+      background: #1e3c72;
+      color: #f0f0f0;
+      border: 1px solid #2a5298;
+      border-radius: 6px;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .2s;
+      margin: 0 .3rem;
+    }
+    .controls button:hover:not(:disabled) {
+      background: #2a5298;
+    }
+    .controls button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    video {
+      width: 100%;
+      border-radius: 8px;
+      margin-top: 1rem;
+      background: #000;
+    }
+    a {
+      display: inline-block;
+      margin-top: 1rem;
+      color: #ff8c00;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    a:hover { color: #ffd280; }
+    /* Mirror the live camera preview so it behaves like a selfie mirror */
+#preview {
+  transform: scaleX(-1);
 }
 
   </style>
@@ -77,114 +86,103 @@ video {
 <body>
   <div class="container">
     <h1>🧠 Technical Case Study</h1>
-    <div id="case-question">Click below to generate a case study.</div>
+    <div id="case-question">Click “Start” to see your case prompt.</div>
     <div class="timer" id="timer">⏱ 03:00</div>
-
     <div class="controls">
-      <button onclick="startCase()">Start</button>
-      <button onclick="stopRecording()" disabled id="stopBtn">Stop Recording</button>
-      <button onclick="deleteRecording()" disabled id="deleteBtn">Delete Recording</button>
+      <button id="startBtn">Start</button>
+      <button id="stopBtn" disabled>Stop</button>
+      <button id="deleteBtn" disabled>Delete</button>
     </div>
-
-    <video id="preview" autoplay muted></video>
-    <video id="playback" controls style="display: none; margin-top: 1rem;"></video>
-    <a id="downloadLink" style="display: none;" download="case-study.webm">🎥 Download Response</a>
+    <video id="preview" autoplay muted playsinline></video>
+    <video id="playback" controls style="display:none;"></video><br>
+    <a id="downloadLink" style="display:none;" download="case-study.webm">Download Recording</a>
   </div>
 
   <script>
     const questions = [
-  "Design a mini food delivery system like Swiggy.",
-  "How would you build a ride-sharing app backend?",
-  "Design an online exam platform with proctoring.",
-  "Build a smart home automation interface.",
-  "Develop a task manager with team collaboration.",
-  "How would you design a movie ticket booking app?"
-];
+      "Design a mini food delivery system like Swiggy.",
+      "How would you build a ride-sharing app backend?",
+      "Design an online exam platform with proctoring.",
+      "Build a smart home automation interface.",
+      "Develop a task manager with team collaboration.",
+      "How would you design a movie ticket booking app?"
+    ];
+    let stream, recorder, chunks=[], timerId, timeLeft;
 
-const questionEl = document.getElementById("case-question");
-const timerEl = document.getElementById("timer");
-const preview = document.getElementById("preview");
-const playback = document.getElementById("playback");
-const downloadLink = document.getElementById("downloadLink");
-const stopBtn = document.getElementById("stopBtn");
-const deleteBtn = document.getElementById("deleteBtn");
+    const qEl = document.getElementById('case-question'),
+          tEl = document.getElementById('timer'),
+          startBtn = document.getElementById('startBtn'),
+          stopBtn  = document.getElementById('stopBtn'),
+          deleteBtn= document.getElementById('deleteBtn'),
+          preview  = document.getElementById('preview'),
+          playback = document.getElementById('playback'),
+          downloadLink = document.getElementById('downloadLink'),
+          buzzer = new Audio('https://www.soundjay.com/button/sounds/beep-07.mp3');
 
-let timer;
-let stream;
-let recorder;
-let chunks = [];
+    startBtn.onclick = async () => {
+      // pick random question
+      qEl.style.opacity = 0;
+      setTimeout(()=>{
+        qEl.textContent = questions[Math.floor(Math.random()*questions.length)];
+        qEl.style.opacity = 1;
+      }, 200);
 
-function startCase() {
-  const randomIndex = Math.floor(Math.random() * questions.length);
-  questionEl.textContent = questions[randomIndex];
-  startTimer(3 * 60); // 3 minutes
-  startRecording();
-  stopBtn.disabled = false;
-  deleteBtn.disabled = true;
-  downloadLink.style.display = 'none';
-  playback.style.display = 'none';
-}
+      // start timer
+      timeLeft = 180; updateTimer();
+      timerId = setInterval(()=>{
+        timeLeft--; updateTimer();
+        if(timeLeft<=0) stopRecording();
+      },1000);
 
-function startTimer(duration) {
-  let time = duration;
-  updateTimerDisplay(time);
+      // start recording
+      stream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+      preview.srcObject = stream;
+      recorder = new MediaRecorder(stream);
+      chunks = [];
+      recorder.ondataavailable = e => chunks.push(e.data);
+      recorder.onstop = onStop;
+      recorder.start();
 
-  timer = setInterval(() => {
-    time--;
-    updateTimerDisplay(time);
-    if (time <= 0) {
-      clearInterval(timer);
-      stopRecording();
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      deleteBtn.disabled = true;
+      downloadLink.style.display = 'none';
+      playback.style.display = 'none';
+    };
+
+    stopBtn.onclick = () => stopRecording();
+
+    function updateTimer(){
+      const m = String(Math.floor(timeLeft/60)).padStart(2,'0'),
+            s = String(timeLeft%60).padStart(2,'0');
+      tEl.textContent = `⏱ ${m}:${s}`;
     }
-  }, 1000);
-}
 
-function updateTimerDisplay(seconds) {
-  const min = String(Math.floor(seconds / 60)).padStart(2, '0');
-  const sec = String(seconds % 60).padStart(2, '0');
-  timerEl.textContent = `⏱ ${min}:${sec}`;
-}
+    function stopRecording(){
+      clearInterval(timerId);
+      if(recorder && recorder.state==='recording') recorder.stop();
+      stream.getTracks().forEach(t=>t.stop());
+      preview.srcObject = null;
+      stopBtn.disabled = true;
+    }
 
-async function startRecording() {
-  stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  preview.srcObject = stream;
+    function onStop(){
+      const blob = new Blob(chunks,{type:'video/webm'}), url = URL.createObjectURL(blob);
+      playback.src = url;
+      playback.style.display = 'block';
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
+      deleteBtn.disabled = false;
+      startBtn.disabled = false;
+    }
 
-  recorder = new MediaRecorder(stream);
-  chunks = [];
-
-  recorder.ondataavailable = e => chunks.push(e.data);
-  recorder.onstop = () => {
-    const blob = new Blob(chunks, { type: 'video/webm' });
-    const url = URL.createObjectURL(blob);
-    
-    playback.src = url;
-    playback.style.display = 'block';
-    downloadLink.href = url;
-    downloadLink.style.display = 'inline-block';
-    deleteBtn.disabled = false;
-  };
-
-  recorder.start();
-}
-
-function stopRecording() {
-  clearInterval(timer);
-  recorder.stop();
-  stream.getTracks().forEach(track => track.stop());
-  preview.srcObject = null;
-  stopBtn.disabled = true;
-}
-
-function deleteRecording() {
-  playback.pause();
-  playback.removeAttribute('src');
-  playback.load();
-  playback.style.display = 'none';
-  downloadLink.href = '';
-  downloadLink.style.display = 'none';
-  deleteBtn.disabled = true;
-}
-
+    deleteBtn.onclick = () => {
+      playback.pause();
+      playback.src = '';
+      playback.style.display = 'none';
+      downloadLink.style.display = 'none';
+      deleteBtn.disabled = true;
+    };
   </script>
 </body>
 </html>

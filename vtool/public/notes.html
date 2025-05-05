@@ -2,203 +2,209 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Creative Notes</title>
+  <title>🎨 Creative Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    :root {
+      --bg1: #11263c;
+      --bg2: #022e5a;
+      --bg3: #5d80a3;
+      --accent: #007bff;
+      --text: #f4f9ff;
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(-45deg, var(--bg1), var(--bg2), var(--bg3), var(--bg2));
+      background-size: 400% 400%;
+      animation: bgShift 20s ease infinite;
+      color: var(--text);
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+    @keyframes bgShift {
+      0% { background-position:0 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0 50%; }
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 20px; backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    .mode-toggle {
+      background: none; border: 2px solid var(--accent);
+      padding: 6px 12px; color: var(--accent); border-radius: 4px;
+      cursor: pointer; transition: background 0.3s;
+    }
+    .mode-toggle:hover { background: var(--accent); color: #fff; }
+
+    main {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
       padding: 20px;
-      background: linear-gradient(-45deg, #519fed, #4b96e1, #a8c4e0, #5fa1de);
     }
-    h1 {
-      text-align: center;
+
+    .card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      display: flex; flex-direction: column; overflow: hidden;
+      position: relative;
     }
-    #toolbar {
-      margin-bottom: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 10px;
+      background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.2);
     }
-    textarea {
-      width: 100%;
-      height: 200px;
-      padding: 10px;
-      resize: vertical;
-      font-size: 16px;
+    .toolbar button, .toolbar select, .toolbar input[type=color] {
+      background: rgba(255,255,255,0.2); border: none; color: #fff;
+      padding: 6px 8px; border-radius: 4px; cursor: pointer;
+      transition: background 0.3s;
     }
-    canvas {
-      border: 2px dashed #aaa;
-      display: block;
-      margin: 10px auto;
-      background: #fcfcfd;
+    .toolbar button:hover, .toolbar select:hover, .toolbar input[type=color]:hover {
+      background: rgba(255,255,255,0.4);
     }
-    button {
-      padding: 8px 12px;
-      cursor: pointer;
-      border-radius: 5px;
-      border: none;
-      background-color: #007bff;
-      color: white;
+
+    /* Note Editor */
+    #noteArea {
+      flex: 1; padding: 15px; border: none; resize: none;
+      background: transparent; color: var(--text); font-size: 16px;
+      outline: none; animation: fadeIn 0.5s ease;
     }
-    button:hover {
-      background-color: #0056b3;
+
+    /* Canvas Drawer */
+    #drawCanvas {
+      flex: 1; cursor: crosshair;
+      background: rgba(255,255,255,0.1);
+      animation: fadeIn 0.5s 0.2s ease both;
     }
-    select, input[type="color"] {
-      padding: 5px;
-    }
+
+    /* Saved Preview */
     #savedPreview {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border: 1px solid #ccc;
+      background: rgba(0,0,0,0.4); padding: 15px; margin-top: 20px;
+      border-radius: 8px; flex: none; animation: fadeIn 0.5s 0.4s ease both;
     }
-    #savedPreview h3 {
-      text-align: center;
-    }
-    #savedText {
-      white-space: pre-wrap;
-      padding: 10px;
-      border: 1px dashed #ddd;
-      margin-bottom: 10px;
-    }
-    #savedCanvas {
-      max-width: 100%;
-      border: 1px solid #ccc;
-      display: block;
-      margin: 0 auto;
+    #savedPreview h3 { margin-top: 0; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
-  <h1>📝 Creative Notes</h1>
 
-  <div id="toolbar">
-    <select id="fontSelect">
-      <option value="Arial">Arial</option>
-      <option value="Georgia">Georgia</option>
-      <option value="Courier New">Courier New</option>
-      <option value="Verdana">Verdana</option>
-      <option value="Times New Roman">Times New Roman</option>
-      <option value="Comic Sans MS">Comic Sans</option>
-      <option value="Monospace">Monospace</option>
-      <option value="Roboto">Roboto</option>
-    </select>
+  <header>
+    <h1>📝 Creative Notes</h1>
+    <button class="mode-toggle" onclick="toggleMode()">Toggle Dark/Light</button>
+  </header>
 
-    <select id="fontSize">
-      <option value="12px">12px</option>
-      <option value="14px">14px</option>
-      <option value="16px" selected>16px</option>
-      <option value="18px">18px</option>
-      <option value="20px">20px</option>
-      <option value="24px">24px</option>
-      <option value="30px">30px</option>
-      <option value="36px">36px</option>
-    </select>
+  <main>
+    <!-- Text Editor Card -->
+    <div class="card">
+      <div class="toolbar">
+        <select id="fontSelect">
+          <option>Arial</option><option>Georgia</option><option>Courier New</option>
+        </select>
+        <select id="fontSize">
+          <option>14px</option><option selected>16px</option><option>18px</option>
+        </select>
+        <button onclick="toggleStyle('bold')"><b>B</b></button>
+        <button onclick="toggleStyle('italic')"><i>I</i></button>
+        <button onclick="toggleStyle('underline')"><u>U</u></button>
+        <input type="color" id="fontColor">
+        <button onclick="saveNote()">💾</button>
+        <button onclick="loadNote()">📂</button>
+        <button onclick="deleteNote()">🗑️</button>
+      </div>
+      <textarea id="noteArea" placeholder="Write your notes..."></textarea>
+    </div>
 
-    <button onclick="toggleStyle('bold')"><b>B</b></button>
-    <button onclick="toggleStyle('italic')"><i>I</i></button>
-    <button onclick="toggleStyle('underline')"><u>U</u></button>
-    <input type="color" id="fontColor" />
-
-    <button onclick="saveNote()">💾 Save</button>
-    <button onclick="loadNote()">📂 Load</button>
-    <button onclick="deleteNote()">🗑️ Delete</button>
-  </div>
-
-  <textarea id="noteArea" placeholder="Start writing your notes here..."></textarea>
-
-  <h3>🎨 Draw Something</h3>
-  <canvas id="drawCanvas" width="600" height="300"></canvas>
-  <div style="text-align:center;">
-    <input type="color" id="drawColor" />
-    <button onclick="clearCanvas()">Clear Canvas</button>
-  </div>
-
-  <div id="savedPreview">
-    <h3>📌 Saved Note Preview</h3>
-    <div id="savedText">No saved note yet.</div>
-    <img id="savedCanvas" src="" alt="Saved drawing preview" />
-  </div>
+    <!-- Draw Card -->
+    <div class="card">
+      <canvas id="drawCanvas" width="600" height="300"></canvas>
+      <div class="toolbar" style="justify-content:center;">
+        <input type="color" id="drawColor">
+        <button onclick="clearCanvas()">Clear</button>
+      </div>
+      <div id="savedPreview">
+        <h3>📌 Saved Preview</h3>
+        <div id="savedText">No note saved.</div>
+        <img id="savedCanvas" src="" alt="" style="width:100%;border-radius:4px;">
+      </div>
+    </div>
+  </main>
 
   <script>
+    // Dark/Light toggle
+    function toggleMode() {
+      document.body.classList.toggle('light-mode');
+      if (document.body.classList.contains('light-mode')) {
+        document.documentElement.style.setProperty('--bg1','#f0f4f8');
+        document.documentElement.style.setProperty('--bg2','#d9e2ec');
+        document.documentElement.style.setProperty('--bg3','#bcccdc');
+        document.documentElement.style.setProperty('--accent','#005c99');
+        document.documentElement.style.setProperty('--text','#001f3f');
+      } else {
+        location.reload(); // reset to original
+      }
+    }
+
+    // Note logic
     const noteArea = document.getElementById('noteArea');
     const fontSelect = document.getElementById('fontSelect');
-    const fontSize = document.getElementById('fontSize');
-    const fontColor = document.getElementById('fontColor');
+    const fontSize   = document.getElementById('fontSize');
+    const fontColor  = document.getElementById('fontColor');
 
     fontSelect.onchange = () => noteArea.style.fontFamily = fontSelect.value;
-    fontSize.onchange = () => noteArea.style.fontSize = fontSize.value;
-    fontColor.oninput = () => noteArea.style.color = fontColor.value;
+    fontSize.onchange   = () => noteArea.style.fontSize = fontSize.value;
+    fontColor.oninput   = () => noteArea.style.color = fontColor.value;
 
-    function toggleStyle(style) {
-      document.execCommand(style, false, null);
+    function toggleStyle(cmd) {
+      document.execCommand(cmd, false, null);
       noteArea.focus();
     }
 
     function saveNote() {
-      localStorage.setItem("noteText", noteArea.value);
-      const canvasData = drawCanvas.toDataURL();
-      localStorage.setItem("canvasImage", canvasData);
+      localStorage.setItem('noteText', noteArea.value);
+      localStorage.setItem('canvasImage', drawCanvas.toDataURL());
       updatePreview();
-      alert("Note saved!");
     }
-
     function loadNote() {
-      noteArea.value = localStorage.getItem("noteText") || "";
-      const canvasImage = localStorage.getItem("canvasImage");
-      if (canvasImage) {
+      noteArea.value = localStorage.getItem('noteText')||'';
+      const imgData = localStorage.getItem('canvasImage');
+      if (imgData) {
         const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = canvasImage;
+        img.onload = () => ctx.drawImage(img,0,0);
+        img.src = imgData;
       }
       updatePreview();
     }
-
     function deleteNote() {
-      if (confirm("Are you sure you want to delete everything?")) {
-        localStorage.removeItem("noteText");
-        localStorage.removeItem("canvasImage");
-        noteArea.value = "";
-        clearCanvas();
-        updatePreview();
-      }
+      localStorage.removeItem('noteText');
+      localStorage.removeItem('canvasImage');
+      noteArea.value=''; clearCanvas(); updatePreview();
     }
-
     function updatePreview() {
-      document.getElementById("savedText").innerText = localStorage.getItem("noteText") || "No saved note yet.";
-      const canvasImg = localStorage.getItem("canvasImage");
-      document.getElementById("savedCanvas").src = canvasImg || "";
+      document.getElementById('savedText').innerText =
+        localStorage.getItem('noteText')||'No note saved.';
+      document.getElementById('savedCanvas').src =
+        localStorage.getItem('canvasImage')||'';
     }
 
-    // Drawing logic
+    // Canvas draw
     const drawCanvas = document.getElementById('drawCanvas');
     const ctx = drawCanvas.getContext('2d');
-    let isDrawing = false;
+    let drawing=false;
+    drawCanvas.onmousedown = e=>{ drawing=true; ctx.beginPath(); ctx.moveTo(e.offsetX,e.offsetY); };
+    drawCanvas.onmousemove = e=>{ if(drawing){ ctx.lineTo(e.offsetX,e.offsetY); ctx.strokeStyle=document.getElementById('drawColor').value; ctx.lineWidth=2; ctx.stroke(); }};
+    drawCanvas.onmouseup = ()=> drawing=false;
+    drawCanvas.onmouseout=()=> drawing=false;
+    function clearCanvas(){ ctx.clearRect(0,0,drawCanvas.width,drawCanvas.height); }
 
-    drawCanvas.addEventListener('mousedown', (e) => {
-      isDrawing = true;
-      ctx.beginPath();
-      ctx.moveTo(e.offsetX, e.offsetY);
-    });
-
-    drawCanvas.addEventListener('mousemove', (e) => {
-      if (isDrawing) {
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.strokeStyle = document.getElementById('drawColor').value;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    });
-
-    drawCanvas.addEventListener('mouseup', () => isDrawing = false);
-    drawCanvas.addEventListener('mouseout', () => isDrawing = false);
-
-    function clearCanvas() {
-      ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    }
-
-    // Load preview on page load
+    // initialize
     window.onload = loadNote;
   </script>
 </body>

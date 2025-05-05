@@ -272,8 +272,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateTimerStyle(timeLeft) {
         const timerCircle = document.getElementById("timer-circle");
-        timerCircle.classList.toggle("pulse", timeLeft <= 5);
+    
+        // Reset styles
+        timerCircle.classList.remove("text-green-500", "text-yellow-500", "text-red-500");
+    
+        if (timeLeft > 10) {
+            timerCircle.classList.add("text-green-500"); // Plenty of time
+        } else if (timeLeft > 5) {
+            timerCircle.classList.add("text-yellow-500"); // Warning
+        } else {
+            timerCircle.classList.add("text-red-500"); // Critical
+        }
     }
+    
 
     function speakQuestion(text) {
         if (speechSynthesis.speaking) {

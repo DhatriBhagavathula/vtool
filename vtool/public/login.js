@@ -1,27 +1,29 @@
-document.getElementById("login-form").addEventListener("submit", function (e) {
+document.getElementById("login-form").addEventListener("submit", async function(e) {
   e.preventDefault();
+  const emailOrPhone = e.target.emailOrPhone.value;
+  const password     = e.target.password.value;
+  const statusDiv    = document.getElementById("login-status");
 
-  const email = document.getElementById("email").value;
-  const phone = document.getElementById("phone").value;
-  const loginStatus = document.getElementById("login-status");
-  const loginBox = document.querySelector(".login-box"); // Add this to target the box
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ emailOrPhone, password }),
+    });
+    
 
-  // Simple format check
-  if (email.includes("@") && phone.length >= 10) {
-    localStorage.setItem("userEmail", email);
-    localStorage.setItem("userPhone", phone);
-    loginStatus.textContent = "✅ Login successful! Redirecting...";
-    loginStatus.style.color = "green";
+    if (!res.ok) {
+      const { detail } = await res.json();
+      statusDiv.textContent = `❌ ${detail || "Login failed"}`;
+      return;
+    }
 
-    // Trigger the 3D rotation effect
-    loginBox.classList.add("rotate");
+    const { token } = await res.json();
+    localStorage.setItem("authToken", token);
+    statusDiv.textContent = "✅ Login successful! Redirecting…";
 
-    // Redirect to dashboard after animation
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 1000); // Match this with your CSS transition time (1s)
-  } else {
-    loginStatus.textContent = "❌ Invalid email or phone number.";
-    loginStatus.style.color = "red";
+    setTimeout(() => window.location.href = "dashboard.html", 700);
+  } catch (err) {
+    statusDiv.textContent = "❌ Server error. Try again.";
   }
 });

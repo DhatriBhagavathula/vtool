@@ -1,68 +1,122 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Virtual Professional Dictionary</title>
   <style>
+    :root {
+      --bg-dark-1: #001f3f;
+      --bg-dark-2: #003366;
+      --accent:    #00bfff;
+      --text-light: #e0f7fa;
+      --card-bg:   rgba(0, 51, 102, 0.8);
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(-45deg, #89c0e4, #3893ed, #5ba1e6, #f0f1f2);
-      margin: 0;
-      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark-1), var(--bg-dark-2));
+      color: var(--text-light);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
     h1 {
       text-align: center;
+      padding: 20px;
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
-    .search-bar {
-      max-width: 400px;
-      margin: 10px auto;
-      display: flex;
-      gap: 10px;
+    .search-container {
+      position: relative;
+      max-width: 480px;
+      margin: 0 auto 20px;
     }
-    .search-bar input {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
+    #searchInput {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 30px;
+      border: 2px solid var(--accent);
+      font-size: 1rem;
+      outline: none;
+      transition: box-shadow .3s;
+    }
+    #searchInput:focus {
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .suggestions {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right:0;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    }
+    .suggestions div {
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .suggestions div:hover {
+      background: rgba(0,191,255,0.2);
     }
     .categories {
       text-align: center;
-      margin: 15px 0;
+      margin-bottom: 20px;
     }
     .categories button {
-      margin: 5px;
-      padding: 8px 15px;
-      border: none;
-      border-radius: 5px;
+      margin: 0 6px 10px;
+      padding: 8px 16px;
+      border: 2px solid var(--accent);
+      background: transparent;
+      color: var(--text-light);
+      border-radius: 20px;
       cursor: pointer;
-      background: #007bff;
-      color: white;
+      transition: background .3s, transform .2s;
     }
-    .categories button.active {
-      background: #0056b3;
+    .categories button.active,
+    .categories button:hover {
+      background: var(--accent);
+      transform: scale(1.1);
     }
     .card-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill,minmax(260px,1fr));
       gap: 20px;
-      padding: 10px;
+      padding: 0 20px 40px;
+      flex:1;
     }
     .card {
-      background: white;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      transform: translateY(0);
+      transition: transform .3s, box-shadow .3s;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.8);
     }
     .card h3 {
-      margin: 0;
+      margin-bottom: 6px;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+    .card .category-label {
+      font-size: .9rem;
+      font-style: italic;
+      color: #a0cfee;
+      margin-bottom: 10px;
     }
     .card p {
-      margin: 5px 0;
-    }
-    .category-label {
-      font-size: 14px;
-      font-style: italic;
-      color: gray;
+      margin: 6px 0;
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -70,8 +124,9 @@
 
   <h1>📘 Virtual Professional Dictionary</h1>
 
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search professional word..." />
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Search words..."/>
+    <div id="suggestions" class="suggestions"></div>
   </div>
 
   <div class="categories" id="categoryButtons"></div>
@@ -153,58 +208,68 @@
   { word: "Scalable", meaning: "Capable of growth under demand.", category: "Business", example: "Built a scalable architecture for global users." }
 ];
 
-
     let selectedCategory = null;
+    const grid = document.getElementById("dictionaryGrid");
+    const search = document.getElementById("searchInput");
+    const cats   = document.getElementById("categoryButtons");
+    const sugg  = document.getElementById("suggestions");
 
-    const dictionaryGrid = document.getElementById("dictionaryGrid");
-    const searchInput = document.getElementById("searchInput");
-    const categoryButtons = document.getElementById("categoryButtons");
-
-    const renderDictionary = () => {
-      const search = searchInput.value.toLowerCase();
-      dictionaryGrid.innerHTML = "";
-
-      const filtered = dictionary.filter(item => {
-        const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-        const matchesSearch = item.word.toLowerCase().includes(search);
-        return matchesCategory && matchesSearch;
-      });
-
-      filtered.forEach(item => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.innerHTML = `
-          <h3>${item.word}</h3>
-          <p class="category-label">${item.category}</p>
-          <p>${item.meaning}</p>
-          <p><strong>Example:</strong> ${item.example}</p>
-        `;
-        dictionaryGrid.appendChild(card);
-      });
-    };
-
-    const renderCategories = () => {
-      const categories = ["All", ...new Set(dictionary.map(item => item.category))];
-      categoryButtons.innerHTML = "";
-
-      categories.forEach(cat => {
+    function renderCategories(){
+      const catsList = ["All", ...new Set(dictionary.map(i=>i.category))];
+      cats.innerHTML = "";
+      catsList.forEach(c=>{
         const btn = document.createElement("button");
-        btn.textContent = cat;
-        btn.classList.toggle("active", selectedCategory === cat || (!selectedCategory && cat === "All"));
-        btn.onclick = () => {
-          selectedCategory = cat === "All" ? null : cat;
-          renderCategories();
-          renderDictionary();
+        btn.textContent = c;
+        btn.classList.toggle("active", selectedCategory===c || (!selectedCategory && c==="All"));
+        btn.onclick = ()=>{
+          selectedCategory = c==="All"?null:c;
+          renderCategories(); renderGrid();
         };
-        categoryButtons.appendChild(btn);
+        cats.appendChild(btn);
       });
-    };
+    }
 
-    searchInput.addEventListener("input", renderDictionary);
+    function renderGrid(){
+      const q = search.value.trim().toLowerCase();
+      grid.innerHTML = "";
+      const filtered = dictionary.filter(item=>{
+        return (!selectedCategory||item.category===selectedCategory)
+            && item.word.toLowerCase().includes(q);
+      });
+      filtered.forEach(i=>{
+        const card = document.createElement("div"); card.className="card";
+        card.innerHTML=`
+          <h3>${i.word}</h3>
+          <div class="category-label">${i.category}</div>
+          <p>${i.meaning}</p>
+          <p><strong>Example:</strong> ${i.example}</p>
+        `;
+        grid.appendChild(card);
+      });
+      renderSuggestions(filtered);
+    }
 
-    // Initial render
+    function renderSuggestions(list){
+      sugg.innerHTML="";
+      if(search.value && list.length){
+        list.slice(0,5).forEach(i=>{
+          const div = document.createElement("div");
+          div.textContent = i.word;
+          div.onclick = ()=>{
+            search.value = i.word;
+            renderGrid();
+            sugg.style.display="none";
+          };
+          sugg.appendChild(div);
+        });
+        sugg.style.display="block";
+      } else sugg.style.display="none";
+    }
+
+    search.addEventListener("input", renderGrid);
     renderCategories();
-    renderDictionary();
+    renderGrid();
   </script>
+
 </body>
 </html>

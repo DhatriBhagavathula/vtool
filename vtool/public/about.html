@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us - VINTER</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #d1d5db;
+      background: linear-gradient(-45deg, #001f3f, #003366, #000d1a, #001a33);
+    background-size: 400% 400%;
+    animation: darkBlueWaves 15s ease infinite;
+    perspective: 1000px;
+  }
+
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: linear-gradient(-45deg, #001f3f, #003366, #000d1a, #001a33);
+    background-size: 400% 400%;
+    animation: darkBlueWaves 15s ease infinite;
+    perspective: 1000px;
+    
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    nav a {
+      color: #d1d5db;
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 16px; 
+    }
+    nav a:hover {
+  color: #1d6dab;
+  padding-bottom: 2px;
+  transition: all 0.3s ease;
+}
+
+
+    section#about {
+      padding: 80px 40px;
+    }
+
+    .about-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .about-text {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .about-text h2 {
+      font-size: 40px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #3a85bf;
+    }
+
+    .about-text p {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .about-image {
+      flex: 1;
+      min-width: 300px;
+      text-align: center;
+    }
+    
+
+    
+
+    @media (max-width: 768px) {
+      .about-text h2 {
+        font-size: 32px;
+      }
+
+      .about-text p {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    
+    <div class="logo">VINTER</div>
+    <nav>
+      <a href="dashboard.html">Home</a>
+      <a href="menu.html">Menu</a>
+      <a href="profile.html">Profile</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <!-- About Section -->
+  <section id="about">
+    <div class="about-container">
+      
+      <!-- Text Section -->
+      <div class="about-text">
+        <h2>ABOUT US</h2>
+        <p>
+          Vinter is a cutting-edge virtual interview simulator designed to empower job seekers, students, and professionals to prepare for interviews with confidence. Our platform offers realistic interview experiences using intelligent tools like timed questions, video and text responses, keyword-based feedback, and customizable filters—all accessible in a user-friendly, secure environment.
+          <br><br>
+          At Vinter, we believe practice makes perfect. Whether you're preparing for your first job interview or aiming to polish your communication skills, our platform helps you simulate real-world scenarios to build confidence, reduce anxiety, and improve performance.
+        </p>
+      </div>
+
+      <!-- Image Section -->
+      <div class="about-image">
+        <img src="images/in4.webp" alt="About Us">
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>
